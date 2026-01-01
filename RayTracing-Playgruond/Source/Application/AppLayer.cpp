@@ -3,8 +3,30 @@
 #include "Utils/Random.h"
 #include <iostream>
 
+#include <glm/gtc/type_ptr.hpp>
+
 namespace Ry_App
 {
+	AppLayer::AppLayer()
+		: m_Camera(45.0f, 0.1f, 100.0f)
+	{
+		{
+			Sphere sphere;
+			sphere.Position = { 0.0f, 0.0f, 0.0f };
+			sphere.Radius = 0.5f;
+			sphere.Albedo = { 1.0f, 0.0f, 0.0f };
+			m_Scene.Spheres.push_back(sphere);
+		}
+
+		{
+			Sphere sphere;
+			sphere.Position = { 1.0f, 0.0f, -5.0f };
+			sphere.Radius = 1.5f;
+			sphere.Albedo = { 0.2f, 0.3f, 1.0f };
+			m_Scene.Spheres.push_back(sphere);
+		}
+	}
+
 	void AppLayer::OnAttach()
 	{
 	}
@@ -23,6 +45,24 @@ namespace Ry_App
 			ImGui::End();
 		}
 
+		// Scene Window
+		{
+			ImGui::Begin("Scene");
+			
+			for (size_t i = 0; i < m_Scene.Spheres.size(); i++)
+			{
+				ImGui::PushID(i);
+				Sphere& sphere = m_Scene.Spheres[i];
+				ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
+				ImGui::DragFloat("Radius", &sphere.Radius, 0.1f);
+				ImGui::ColorEdit3("Albedo", glm::value_ptr(sphere.Albedo));
+				ImGui::Separator();
+				ImGui::PopID();
+			}
+
+			ImGui::End();
+		}
+
 		// Viewport
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -30,9 +70,12 @@ namespace Ry_App
 			m_ViewportWidth = ImGui::GetContentRegionAvail().x;
 			m_ViewportHeight = ImGui::GetContentRegionAvail().y;
 
-
-			if (m_Image)
-				ImGui::Image(m_Image->GetDescriptorSet(), { (float)m_Image->GetWidth(), (float)m_Image->GetHeight() });
+			auto image = m_Renderer.GetFinalImage();
+			if (image)
+			{
+				ImGui::Image(image->GetDescriptorSet(), { (float)image->GetWidth(), (float)image->GetHeight() },
+					ImVec2(0, 1), ImVec2(1, 0));
+			}
 
 			ImGui::End();
 			ImGui::PopStyleVar();
@@ -41,27 +84,19 @@ namespace Ry_App
 		}
 	}
 
+	void AppLayer::OnUpdate(float ts)
+	{
+		m_Camera.OnUpdate(ts);
+	}
+
 	void AppLayer::Render()
 	{
 		Timer timer;
 
-		// Recreate the image if image doesn't exist or width & height don't match current one due to resize
-		if (!m_Image || m_ViewportWidth != m_Image->GetWidth() || m_ViewportHeight != m_Image->GetHeight())
-		{
-			m_Image = std::make_shared<Image>(m_ViewportWidth, m_ViewportHeight, ImageFormat::RGBA);
-			delete[] m_ImageData;
-			m_ImageData = new uint32_t[m_ViewportWidth * m_ViewportHeight];
-		}
+		m_Renderer.OnResize(m_ViewportWidth, m_ViewportHeight);
+		m_Camera.OnResize(m_ViewportWidth, m_ViewportHeight);
+		m_Renderer.Render(m_Scene, m_Camera);
 
-		// Make every pixel a random color
-		for (uint32_t i = 0; i < m_ViewportWidth * m_ViewportHeight; i++)
-		{
-			m_ImageData[i] = Random::UInt();
-			m_ImageData[i] |= 0xff000000;
-		}
-
-
-		m_Image->SetData(m_ImageData);
 		m_FrameTime = timer.ElapsedMillis();
 		m_FPS = 1000.0f / m_FrameTime;
 	}

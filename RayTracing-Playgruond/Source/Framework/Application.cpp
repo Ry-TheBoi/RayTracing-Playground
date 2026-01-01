@@ -12,6 +12,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
+#include <glm/glm.hpp>
 
 #include <iostream>
 
@@ -561,6 +562,10 @@ namespace Ry_App
 			// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
 			glfwPollEvents();
 
+			// On update layers
+			for (auto& layer : m_LayerStack)
+				layer->OnUpdate(m_TimeStep);
+
 			// Resize swap chain?
 			if (g_SwapChainRebuild)
 			{
@@ -654,6 +659,11 @@ namespace Ry_App
 			// Present Main Platform Window
 			if (!main_is_minimized)
 				FramePresent(wd);
+
+			float time = (float)glfwGetTime();
+			m_FrameTime = time - m_LastFrameTime;
+			m_TimeStep = glm::min<float>(m_FrameTime, 0.0333f);
+			m_LastFrameTime = time;
 		}
 
 	}

@@ -53,6 +53,7 @@ namespace Ry_App {
 		static void SubmitResourceFree(std::function<void()>&& func);
 
 		static Application& Get() { return *s_Instance; }
+		GLFWwindow* GetWindowHandle() const { return m_WindowHandle; }
 	private:
 		void Init();
 		void Shutdown();
@@ -60,6 +61,10 @@ namespace Ry_App {
 		ApplicationSpecification m_Specification;
 		GLFWwindow* m_WindowHandle = nullptr;
 		bool m_Running = false;
+
+		float m_TimeStep = 0.0f;
+		float m_FrameTime = 0.0f;
+		float m_LastFrameTime = 0.0f;
 
 		std::vector<std::shared_ptr<Layer>> m_LayerStack;
 		bool m_MenuBar = false;
