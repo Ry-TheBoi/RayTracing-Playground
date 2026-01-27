@@ -54,6 +54,7 @@ namespace Ry_App
 		uint32_t* m_ImageData = nullptr;
 		glm::vec4* m_AccumulationData = nullptr;
 		uint32_t m_FrameIndex = 1;
+		std::vector<uint32_t> m_ImageHorizontalIter, m_ImageVerticalIter;
 
 		int m_RayBounces = 5;
 		bool m_Reflections = true;
