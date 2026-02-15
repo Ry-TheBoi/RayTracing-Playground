@@ -12,25 +12,57 @@ namespace Ry_App
 	{
 		Material& redSphere = m_Scene.Materials.emplace_back();
 		redSphere.Albedo = { 1.0f, 0.0f, 0.0f };
-		redSphere.Roughness = 0.0f;
+		redSphere.Roughness = 1.0f;
+		redSphere.Emission = 0.0f;
 
-		Material& blueSphere = m_Scene.Materials.emplace_back();
-		blueSphere.Albedo = { 0.2f, 0.3f, 1.0f };
-		blueSphere.Roughness = 0.1f;
+		Material& whiteSphere = m_Scene.Materials.emplace_back();
+		whiteSphere.Albedo = { 0.7f, 0.7f, 0.7f };
+		whiteSphere.Roughness = 1.0f;
+		whiteSphere.Emission = 0.0f;
 
-		{
-			Sphere sphere;
-			sphere.Position = { 0.0f, 0.0f, 0.0f };
-			sphere.Radius = 1.0f;
-			sphere.MaterialIndex = 0;
-			m_Scene.Spheres.push_back(sphere);
-		}
+		Material& sunMaterial = m_Scene.Materials.emplace_back();
+		sunMaterial.Albedo = { 1.0f, 0.865f, 0.677f };
+		sunMaterial.Roughness = 0.1f;
+		sunMaterial.Emission = 10.0f;
 
+		Material& glowyGreenMaterial = m_Scene.Materials.emplace_back();
+		glowyGreenMaterial.Albedo = { 0.258f, 1.0f, 0.785f };
+		glowyGreenMaterial.Roughness = 0.1f;
+		glowyGreenMaterial.Emission = 4.0f;
+
+		// Base
 		{
 			Sphere sphere;
 			sphere.Position = { 0.0f, -101.0f, 0.0f };
 			sphere.Radius = 100.0f;
+			sphere.MaterialIndex = 0;
+			m_Scene.Spheres.push_back(sphere);
+		}
+
+		// Normal Sphere
+		{
+			Sphere sphere;
+			sphere.Position = { 0.0f, 0.0f, 0.0f };
+			sphere.Radius = 1.0f;
 			sphere.MaterialIndex = 1;
+			m_Scene.Spheres.push_back(sphere);
+		}
+
+		// Sun Sphere
+		{
+			Sphere sphere;
+			sphere.Position = { -8.9f, 8.2f, -14.6f };
+			sphere.Radius = 7.0f;
+			sphere.MaterialIndex = 2;
+			m_Scene.Spheres.push_back(sphere);
+		}
+
+		// Glowy Green Sphere
+		{
+			Sphere sphere;
+			sphere.Position = { 1.5f, -1.0f, 1.8f };
+			sphere.Radius = 0.8f;
+			sphere.MaterialIndex = 3;
 			m_Scene.Spheres.push_back(sphere);
 		}
 	}
@@ -63,6 +95,8 @@ namespace Ry_App
 		{
 			ImGui::Begin("Scene");
 			
+			ImGui::ColorEdit3("Sky Color", glm::value_ptr(m_Renderer.GetSkyColor()));
+
 			for (size_t i = 0; i < m_Scene.Spheres.size(); i++)
 			{
 				ImGui::PushID(i);
@@ -81,6 +115,7 @@ namespace Ry_App
 				ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
 				ImGui::DragFloat("Roughness", &material.Roughness, 0.05f, 0.0f, 1.0f);
 				ImGui::DragFloat("Metallic", &material.Metallic, 0.05f, 0.0f, 1.0f);
+				ImGui::DragFloat("Emission", &material.Emission, 0.05f, 0.0f, FLT_MAX);
 				ImGui::Separator();
 				ImGui::PopID();
 			}

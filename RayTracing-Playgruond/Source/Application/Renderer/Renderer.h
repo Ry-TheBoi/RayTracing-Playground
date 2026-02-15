@@ -39,6 +39,7 @@ namespace Ry_App
 		int& GetRayBounces() { return m_RayBounces; }
 		bool& GetReflectionState() { return m_Reflections; }
 		bool& GetAccumulationState() { return m_Accumulate; }
+		glm::vec3& GetSkyColor() { return m_SkyColor; }
 	private:
 		// "Shader" functions
 		glm::vec4 RayGeneration(uint32_t x, uint32_t y);
@@ -56,8 +57,10 @@ namespace Ry_App
 		uint32_t m_FrameIndex = 1;
 		std::vector<uint32_t> m_ImageHorizontalIter, m_ImageVerticalIter;
 
-		int m_RayBounces = 5;
-		bool m_Reflections = true;
+		glm::vec3 m_SkyColor = glm::vec3((178.0f / 255.0f), (199.0f / 255.0f), (213.0f / 255.0f));
+		int m_RayBounces = 2;
+		bool m_Reflections = false;
+		bool m_Lighting = true;
 		bool m_Accumulate = true;
 	};
 }
